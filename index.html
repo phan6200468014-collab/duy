@@ -1,0 +1,1080 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#797ce0">
+<title>Phòng thí nghiệm ảo Vật lí 11</title>
+<style>
+:root{
+  color-scheme:light;
+  --bg:#f7f5ff;--card:#fff;--ink:#29324a;--muted:#75809a;
+  --line:#e7e5f4;--blue:#7c83f6;--purple:#a78bfa;
+  --mint:#65c8b0;--pink:#ed7193;--amber:#e4a34d;
+  --shadow:0 8px 28px #625b9510;
+}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --bg:#151725;--card:#202337;--ink:#edf0ff;--muted:#abb2ca;
+  --line:#383c56;--blue:#999cff;--purple:#b9a1ff;
+  --mint:#70d7bb;--pink:#ff91ac;--amber:#f2bd79;
+  --shadow:0 8px 28px #0003;
+}
+*{box-sizing:border-box}
+body{margin:0;color:var(--ink);background:var(--bg);font:15px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif}
+button,input,select{font:inherit}
+button{
+  cursor:pointer;border:1px solid var(--line);border-radius:10px;
+  padding:8px 11px;background:var(--card);color:var(--ink);
+  font-weight:650;transition:.18s ease
+}
+button:hover{filter:brightness(.96);border-color:var(--blue)}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid #a5b4fc;outline-offset:2px}
+button.primary{background:linear-gradient(120deg,var(--blue),var(--purple));color:#fff;border:0}
+button.active{background:#ede9fe;color:#6d5bd0;border-color:#c4b5fd}
+:root[data-theme="dark"] button.active{background:#36304e;color:#d3c6ff}
+input,select{color:var(--ink);background:var(--card)}
+.top{
+  background:linear-gradient(115deg,#696fca,#8b79cf 52%,#6fb9c7);
+  color:#fff;padding:17px 22px;display:flex;justify-content:space-between;
+  align-items:center;gap:12px;flex-wrap:wrap
+}
+.top h1{font-size:clamp(20px,3vw,28px);margin:0}
+.top p{margin:4px 0 0;color:#f1f2ff}
+.tabs{
+  display:flex;gap:8px;flex-wrap:wrap;padding:11px 16px;
+  background:var(--card);border-bottom:1px solid var(--line);
+  position:sticky;top:0;z-index:5
+}
+.tabs button{flex:1;min-width:140px}
+.layout{
+  display:grid;grid-template-columns:minmax(275px,350px) minmax(0,1fr);
+  gap:15px;padding:15px;max-width:1600px;margin:auto
+}
+.stack{display:flex;flex-direction:column;gap:15px;min-width:0}
+.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:15px;box-shadow:var(--shadow);min-width:0}
+.card h2{font-size:18px;margin:0 0 11px}
+.card h3{font-size:15px;margin:0 0 8px}
+.small,.status{font-size:12px;color:var(--muted)}
+.control{margin:12px 0}
+.control label{display:flex;justify-content:space-between;gap:8px;font-weight:650;font-size:13px}
+.control output{color:var(--blue);font-variant-numeric:tabular-nums}
+.control input[type=range]{width:100%;accent-color:var(--blue)}
+.toolbar{display:flex;gap:7px;align-items:center;flex-wrap:wrap}
+.toolbar select,.select{border:1px solid var(--line);border-radius:9px;padding:7px 9px}
+.row-between{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.readouts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}
+.metric,.readout{
+  padding:9px;border:1px solid var(--line);border-radius:11px;
+  background:color-mix(in srgb,var(--card) 88%,var(--blue) 12%);text-align:center
+}
+.metric span,.readout span{display:block;font-size:11px;color:var(--muted)}
+.metric strong,.readout strong{display:block;font-size:14px;margin-top:2px}
+.formula{padding:10px;margin:7px 0;border:1px solid var(--line);border-radius:10px;background:color-mix(in srgb,var(--card) 90%,var(--purple) 10%)}
+.pill{font-size:11px;padding:3px 8px;border-radius:99px;background:#f0eaff;color:#6d4db6;font-weight:750}
+:root[data-theme="dark"] .pill{background:#38314f;color:#d3c6ff}
+.simstage,.graph-wrap{position:relative;overflow:hidden;border:1px solid var(--line);border-radius:13px;background:color-mix(in srgb,var(--card) 92%,#cbdcff 8%)}
+.simstage{height:300px}
+.graph-wrap{height:320px}
+canvas{display:block;width:100%;height:100%;touch-action:none}
+.experimental-tools,.graph-readouts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;margin-top:9px}
+.tool-stat,.graph-readouts>div{
+  padding:8px;border:1px solid var(--line);border-radius:10px;
+  background:color-mix(in srgb,var(--card) 90%,var(--blue) 10%);font-size:12px
+}
+.tool-stat strong,.graph-readouts strong{display:block;font-size:13px}
+.graph-readouts{grid-template-columns:repeat(4,minmax(0,1fr))}
+.graph-readouts span{display:block;color:var(--muted);font-size:11px}
+.legend{display:flex;gap:13px;flex-wrap:wrap;margin:8px 0;font-size:12px}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:5px}
+.compare-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin-top:10px}
+.compare-field{min-width:0}
+.compare-field label{display:block;font-size:12px;color:var(--muted);margin-bottom:4px}
+.compare-field input,.compare-field select{width:100%;padding:7px;border:1px solid var(--line);border-radius:8px}
+.compare-legend{display:flex;gap:13px;flex-wrap:wrap;margin:8px 0;font-size:12px}
+.compare-legend i{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:5px}
+.quiz-options{display:grid;gap:7px;margin:10px 0}
+.option{text-align:left;width:100%;font-weight:500}
+.option.selected{border-color:var(--blue);background:#eeedff}
+:root[data-theme="dark"] .option.selected{background:#36304e}
+.progress{height:7px;background:var(--line);border-radius:99px;overflow:hidden;margin:9px 0}
+.progress div{height:100%;width:0;background:linear-gradient(90deg,var(--blue),var(--mint))}
+.feedback{padding:10px;border-radius:9px;margin:8px 0;font-size:13px}
+.correct{background:#e7f8ed;color:#236d48}
+.wrong{background:#fff0f0;color:#9e4545}
+:root[data-theme="dark"] .correct{background:#1d3b30;color:#a8ebc1}
+:root[data-theme="dark"] .wrong{background:#482b35;color:#ffc0c9}
+.hint{padding:10px;border-radius:9px;background:#eef6ff;color:#4a62a5}
+:root[data-theme="dark"] .hint{background:#27354c;color:#c5d8ff}
+.hidden{display:none!important}
+.table-wrap{overflow:auto;max-height:210px;border:1px solid var(--line);border-radius:10px;margin-top:9px}
+table{width:100%;border-collapse:collapse;font-size:12px;white-space:nowrap}
+th,td{padding:7px 9px;border-bottom:1px solid var(--line);text-align:right}
+th{position:sticky;top:0;background:var(--card)}
+th:first-child,td:first-child{text-align:left}
+.status-dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--mint);margin-right:5px}
+.hr{border:0;border-top:1px solid var(--line);margin:14px 0}
+.note{padding:9px 11px;border-radius:10px;background:color-mix(in srgb,var(--card) 85%,var(--amber) 15%);font-size:12px}
+.teacher-locked{opacity:.55}
+.footer{text-align:center;color:var(--muted);font-size:12px;padding:16px}
+@media(max-width:900px){.layout{grid-template-columns:1fr}.tabs{position:static}}
+@media(max-width:600px){
+  .layout{padding:8px;gap:9px}.card{padding:11px}
+  .readouts{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .experimental-tools{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .graph-readouts{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .compare-grid{grid-template-columns:1fr}
+  .simstage{height:250px}.graph-wrap{height:270px}
+  .toolbar button{font-size:12px;padding:7px 8px}
+}
+@media print{
+  .top,.tabs,.controls-only,.footer,.no-print{display:none!important}
+  body{background:#fff;color:#111}
+  .layout{display:block;padding:0}
+  .card{box-shadow:none;border:1px solid #bbb;break-inside:avoid}
+}
+</style>
+</head>
+
+<body>
+<header class="top">
+  <div>
+    <h1>⚛ Phòng Thí Nghiệm Ảo Vật Lí 11</h1>
+    <p>Chương Dao động · Quan sát, thử nghiệm và tự kiểm chứng</p>
+  </div>
+  <div class="toolbar">
+    <button id="teacherBtn">👩‍🏫 Chế độ giáo viên: tắt</button>
+    <button id="themeBtn">🌙 Dark mode</button>
+    <button id="resetBtn">↻ Đặt lại</button>
+  </div>
+</header>
+
+<nav class="tabs" aria-label="Chọn mô phỏng">
+  <button class="active" data-tab="1">1. Dao động điều hòa</button>
+  <button data-tab="2">2. Con lắc lò xo</button>
+  <button data-tab="3">3. Con lắc đơn</button>
+  <button data-tab="4">4. Tắt dần & cộng hưởng</button>
+</nav>
+
+<main class="layout">
+<aside class="stack">
+  <section class="card">
+    <h2>🎛 Thiết lập thí nghiệm</h2>
+    <p class="small">Thay đổi thông số để quan sát ảnh hưởng đến dao động.</p>
+
+    <div id="controls1">
+      <div class="control"><label for="A">Biên độ A <output id="Aout"></output></label><input id="A" type="range" min="1" max="20" step=".5" value="10"></div>
+      <div class="control"><label for="omega">Tần số góc ω <output id="omegaout"></output></label><input id="omega" type="range" min=".5" max="10" step=".1" value="3.14"></div>
+      <div class="control"><label for="phi">Pha ban đầu φ <output id="phiout"></output></label><input id="phi" type="range" min="-3.14" max="3.14" step=".1" value="0"></div>
+    </div>
+
+    <div id="controls2" class="hidden">
+      <div class="control"><label for="mass">Khối lượng m <output id="massout"></output></label><input id="mass" type="range" min="50" max="1000" step="25" value="200"></div>
+      <div class="control"><label for="stiff">Độ cứng k <output id="stiffout"></output></label><input id="stiff" type="range" min="10" max="200" step="5" value="50"></div>
+      <div class="control"><label for="As">Biên độ A <output id="Asout"></output></label><input id="As" type="range" min="1" max="15" step=".5" value="8"></div>
+      <div class="toolbar"><button id="springH" class="active">↔ Nằm ngang</button><button id="springV">↕ Thẳng đứng</button></div>
+      <p class="small">Với lò xo thẳng đứng, li độ tính từ vị trí cân bằng.</p>
+    </div>
+
+    <div id="controls3" class="hidden">
+      <div class="control"><label for="length">Chiều dài dây l <output id="lengthout"></output></label><input id="length" type="range" min=".2" max="2" step=".05" value="1"></div>
+      <div class="control"><label for="angle">Góc lệch θ₀ <output id="angleout"></output></label><input id="angle" type="range" min="2" max="35" step="1" value="15"></div>
+      <div class="control"><label for="gravity">Gia tốc trọng trường g <output id="gravityout"></output></label><input id="gravity" type="range" min="1" max="20" step=".1" value="9.8"></div>
+    </div>
+
+    <div id="controls4" class="hidden">
+      <div class="control"><label for="damping">Hệ số cản minh họa <output id="dampingout"></output></label><input id="damping" type="range" min="0" max="1" step=".05" value=".15"></div>
+      <div class="control"><label for="drive">Tần số lực cưỡng bức <output id="driveout"></output></label><input id="drive" type="range" min=".2" max="3" step=".1" value="1"></div>
+      <p class="small">Mô hình cộng hưởng mang tính minh họa định tính.</p>
+    </div>
+
+    <div class="formula" id="equation"></div>
+    <div class="readouts">
+      <div class="metric"><span>Chu kỳ T</span><strong id="Tval"></strong></div>
+      <div class="metric"><span>Tần số f</span><strong id="fval"></strong></div>
+      <div class="metric"><span>Li độ x</span><strong id="xval"></strong></div>
+      <div class="metric"><span>Vận tốc v</span><strong id="vval"></strong></div>
+      <div class="metric"><span>Gia tốc a</span><strong id="aval"></strong></div>
+      <div class="metric"><span>Năng lượng</span><strong id="Wval"></strong></div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>📘 Công thức & hướng dẫn</h2>
+    <div id="guide"></div>
+    <div class="formula">
+      <strong>⚠ Sai lầm thường gặp</strong>
+      <ul class="small">
+        <li>Nhầm biên độ A (độ lớn li độ cực đại) với li độ tức thời x.</li>
+        <li>Trong dao động điều hòa lý tưởng, chu kỳ không phụ thuộc biên độ A.</li>
+        <li>Nhầm tần số f với tần số góc ω: ω = 2πf.</li>
+        <li>Con lắc đơn dùng công thức gần đúng khi góc lệch nhỏ.</li>
+        <li>Tính năng lượng SI cần đổi A sang mét, m sang kilôgam.</li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="card">
+    <div class="row-between"><h2>🧠 Luyện tập</h2><span class="pill" id="levelTag">Cơ bản</span></div>
+    <div class="two">
+      <label class="small">Chủ đề
+        <select id="quizTopic" class="select" style="width:100%">
+          <option value="all">Tất cả chủ đề</option>
+          <option value="1">Dao động điều hòa</option>
+          <option value="2">Con lắc lò xo</option>
+          <option value="3">Con lắc đơn</option>
+          <option value="4">Năng lượng & cộng hưởng</option>
+        </select>
+      </label>
+      <label class="small">Độ khó
+        <select id="quizLevel" class="select" style="width:100%">
+          <option value="all">Tất cả</option><option value="1">Cơ bản</option>
+          <option value="2">Vận dụng</option><option value="3">Nâng cao</option>
+        </select>
+      </label>
+    </div>
+    <div class="progress"><div id="progressBar"></div></div>
+    <div class="row-between small"><span id="questionCount"></span><span id="score">Điểm: 0/0</span></div>
+    <p id="question"><strong></strong></p>
+    <div id="options" class="quiz-options"></div>
+    <div class="toolbar">
+      <button class="primary" id="checkAnswer">Kiểm tra</button>
+      <button id="hintBtn">💡 Gợi ý</button>
+      <button id="solutionBtn">📖 Lời giải</button>
+      <button id="nextQuestion">Câu tiếp →</button>
+    </div>
+    <div id="quizFeedback" class="feedback hidden"></div>
+    <div id="hintBox" class="hint hidden" style="margin-top:8px"></div>
+    <div id="solutionBox" class="formula hidden"></div>
+  </section>
+</aside>
+
+<section class="stack">
+  <section class="card">
+    <div class="row-between">
+      <h2>🔬 Mô phỏng trực quan</h2><span class="pill" id="simLabel"></span>
+    </div>
+    <div class="toolbar controls-only" style="margin-bottom:9px">
+      <button class="primary" id="playBtn">⏸ Tạm dừng</button>
+      <button id="stepBtn">⏭ Tiến 0,1 s</button>
+      <button id="restartBtn">↻ Về đầu</button>
+      <label class="small">Tốc độ
+        <select id="speed" class="select">
+          <option value=".25">0,25×</option><option value=".5">0,5×</option>
+          <option value="1" selected>1×</option><option value="1.5">1,5×</option><option value="2">2×</option>
+        </select>
+      </label>
+    </div>
+    <div class="toolbar controls-only" style="margin-bottom:9px">
+      <strong class="small">Đến trạng thái:</strong>
+      <button data-jump="center">x = 0</button><button data-jump="plusA">x = +A</button>
+      <button data-jump="minusA">x = −A</button><button data-jump="half">x = +A/2</button>
+      <button data-jump="energy">Wđ = Wt</button><button data-jump="quarter">t = T/4</button>
+    </div>
+
+    <div class="simstage"><canvas id="simCanvas" aria-label="Mô phỏng dao động"></canvas></div>
+    <p id="simStatus" class="status"></p>
+
+    <div class="experimental-tools">
+      <div class="tool-stat">Vị trí<strong id="toolPosition"></strong></div>
+      <div class="tool-stat">Động năng / W<strong id="toolKinetic"></strong></div>
+      <div class="tool-stat">Thế năng / W<strong id="toolPotential"></strong></div>
+    </div>
+
+    <div class="toolbar controls-only" style="margin-top:11px">
+      <button class="primary" id="recordBtn">＋ Ghi số liệu</button>
+      <button id="clearDataBtn">Xóa bảng</button>
+      <button id="exportCsvBtn">⇩ CSV</button>
+      <button id="exportWordBtn">⇩ Báo cáo Word</button>
+      <button id="printBtn">🖨 In / PDF</button>
+      <button id="saveGraphBtn">🖼 Lưu ảnh đồ thị</button>
+      <span id="recordStatus" class="status">Chưa ghi số liệu</span>
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>#</th><th>t (s)</th><th>x (cm)</th><th>v (cm/s)</th><th>a (cm/s²)</th><th>Wt/W</th><th>Wđ/W</th></tr></thead>
+        <tbody id="dataRows"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="card">
+    <div class="row-between">
+      <div><h2>📈 Đồ thị</h2><span class="small">Đường đồ thị cập nhật theo mô phỏng.</span></div>
+      <label class="small">Khoảng hiển thị
+        <select id="graphWindow" class="select">
+          <option value="1">1 chu kỳ</option><option value="2" selected>2 chu kỳ</option>
+          <option value="4">4 chu kỳ</option><option value="6">6 chu kỳ</option>
+        </select>
+      </label>
+    </div>
+    <div class="toolbar controls-only" style="margin:10px 0">
+      <button class="active" data-graph="x">Li độ x(t)</button>
+      <button data-graph="v">Vận tốc v(t)</button>
+      <button data-graph="a">Gia tốc a(t)</button>
+      <button data-graph="energy">Năng lượng</button>
+      <button data-graph="phase">Pha x–v</button>
+      <button data-graph="resonance" id="resonanceBtn" class="hidden">Đường cong cộng hưởng</button>
+    </div>
+
+    <div id="comparePanel" class="formula">
+      <div class="row-between">
+        <strong>⚖ So sánh hai bộ thông số</strong>
+        <label class="small"><input id="compareToggle" type="checkbox"> Bật so sánh</label>
+      </div>
+      <div id="compareControls" class="hidden">
+        <div class="compare-grid">
+          <div class="compare-field">
+            <label for="compareQuantity">Đại lượng hiển thị</label>
+            <select id="compareQuantity">
+              <option value="x">Li độ x(t)</option>
+              <option value="v">Vận tốc v(t)</option>
+              <option value="a">Gia tốc a(t)</option>
+            </select>
+          </div>
+          <div class="compare-field">
+            <label for="compareParameter">Thông số thay đổi</label>
+            <select id="compareParameter">
+              <option value="A">Biên độ A</option>
+              <option value="omega">Tần số góc ω</option>
+              <option value="phi">Pha ban đầu φ</option>
+            </select>
+          </div>
+          <div class="compare-field">
+            <label for="compareValue1">Giá trị bộ 1</label>
+            <input id="compareValue1" type="number" step="0.1" value="10">
+          </div>
+          <div class="compare-field">
+            <label for="compareValue2">Giá trị bộ 2</label>
+            <input id="compareValue2" type="number" step="0.1" value="15">
+          </div>
+        </div>
+        <p class="small">Các thông số không chọn sẽ lấy từ thiết lập hiện tại. Đường tím/hồng biểu diễn bộ 1/bộ 2.</p>
+      </div>
+    </div>
+
+    <div id="drawPanel" class="formula">
+      <div class="row-between">
+        <strong>✍ Vẽ tay đường li độ</strong>
+        <div class="toolbar controls-only">
+          <button id="drawToggle">Bắt đầu vẽ</button>
+          <button id="clearDrawing">Xóa nét vẽ</button>
+        </div>
+      </div>
+      <p id="drawStatus" class="small">Bấm “Bắt đầu vẽ”, rồi kéo chuột hoặc ngón tay trong vùng đồ thị x(t).</p>
+    </div>
+
+    <div class="graph-readouts">
+      <div><span>Thời gian</span><strong id="graphTime">0,00 s</strong></div>
+      <div><span>Li độ</span><strong id="graphX">0,00 cm</strong></div>
+      <div><span>Vận tốc</span><strong id="graphV">0,00 cm/s</strong></div>
+      <div><span>Gia tốc</span><strong id="graphA">0,00 cm/s²</strong></div>
+    </div>
+    <div class="graph-wrap"><canvas id="graphCanvas" aria-label="Đồ thị dao động"></canvas></div>
+    <div class="legend" id="legend"></div>
+    <p class="small">Đường vẽ tay được quy đổi theo trục thời gian và li độ của đồ thị hiện tại.</p>
+  </section>
+
+  <section class="card">
+    <h2>⏱ Thí nghiệm thực tế: đo chu kỳ</h2>
+    <p class="small">Bấm bắt đầu khi vật đi qua vị trí cân bằng theo một chiều; bấm dừng sau N chu kỳ. Đồng hồ mô phỏng thời gian thực.</p>
+    <div class="two">
+      <label class="small">Số chu kỳ N
+        <input id="cyclesMeasured" type="number" min="1" max="100" value="10" class="select" style="width:100%">
+      </label>
+      <div class="readout"><span>Thời gian đo</span><strong id="stopwatch">0,00 s</strong></div>
+      <div class="readout"><span>Chu kỳ trung bình</span><strong id="measuredPeriod">—</strong></div>
+      <div class="readout"><span>Chu kỳ lý thuyết</span><strong id="theoryPeriod">—</strong></div>
+    </div>
+    <div class="toolbar controls-only" style="margin-top:9px">
+      <button class="primary" id="timerStart">▶ Bắt đầu đo</button>
+      <button id="timerStop">⏹ Dừng / lưu kết quả</button>
+      <button id="timerReset">↻ Xóa đồng hồ</button>
+    </div>
+    <p class="small" id="timerStatus">Chưa bắt đầu phép đo.</p>
+  </section>
+
+  <section class="card">
+    <h2>🧪 Gợi ý nhiệm vụ</h2>
+    <div class="two">
+      <div class="formula"><strong>Biên độ</strong><p class="small">Thay A, giữ ω không đổi. So sánh chu kỳ và vận tốc cực đại.</p></div>
+      <div class="formula"><strong>Khối lượng</strong><p class="small">Với lò xo, tăng m và quan sát chu kỳ T = 2π√(m/k).</p></div>
+      <div class="formula"><strong>Con lắc đơn</strong><p class="small">Thay đổi l, so sánh với T ≈ 2π√(l/g).</p></div>
+      <div class="formula"><strong>Cộng hưởng</strong><p class="small">Thay đổi tần số kích thích và hệ số cản.</p></div>
+    </div>
+    <p class="note">Đây là mô phỏng giáo dục. Mô hình tắt dần/cộng hưởng được đơn giản hóa, không thay thế phép đo thực nghiệm.</p>
+  </section>
+</section>
+</main>
+<div class="footer">Phòng thí nghiệm ảo Vật lí 11 · Trạng thái được lưu trên thiết bị này.</div>
+
+<script>
+'use strict';
+
+const $=id=>document.getElementById(id);
+const STORAGE_KEY='vatli11-lab-state-v3';
+const defaults={A:10,omega:3.14,phi:0,mass:200,stiff:50,As:8,length:1,angle:15,gravity:9.8,damping:.15,drive:1};
+const params={...defaults};
+let tab=1,t=0,playing=true,speed=1,graphMode='x',springVertical=false;
+let lastFrame=performance.now(),teacherMode=false,compareEnabled=false;
+let drawingEnabled=false,isDrawing=false,drawing=[];
+let timerRunning=false,timerStartedAt=0,timerElapsed=0;
+let experimentData=[];
+let quizPool=[],quizIndex=0,quizScore=0,quizAttempts=0,currentQuestion=null,picked=-1,answered=false;
+
+const questions=[
+ {topic:1,level:1,q:"Trong x = A cos(ωt + φ), đại lượng nào luôn không âm?",o:["Li độ x","Biên độ A","Vận tốc v","Pha"],a:1,h:"Biên độ là độ lớn li độ cực đại.",s:"A được định nghĩa là độ lớn li độ cực đại nên A ≥ 0.",wrong:["Li độ x có thể âm, dương hoặc bằng 0.","Đúng: biên độ luôn không âm.","Vận tốc có thể đổi dấu.","Pha có thể âm hoặc dương."]},
+ {topic:1,level:1,q:"Tại vị trí cân bằng, đại lượng nào có độ lớn cực đại?",o:["Li độ","Gia tốc","Tốc độ","Thế năng"],a:2,h:"Tại cân bằng, x = 0.",s:"Tại x = 0, thế năng nhỏ nhất và tốc độ lớn nhất.",wrong:["Li độ bằng 0 tại cân bằng.","Gia tốc bằng 0 tại cân bằng.","Đúng: tốc độ đạt cực đại.","Thế năng nhỏ nhất tại cân bằng."]},
+ {topic:1,level:2,q:"Tăng A gấp đôi, giữ ω không đổi. Chu kỳ thay đổi thế nào?",o:["Tăng gấp đôi","Giảm một nửa","Không đổi","Tăng gấp bốn"],a:2,h:"T = 2π/ω.",s:"Chu kỳ không phụ thuộc biên độ trong dao động điều hòa lý tưởng.",wrong:["A không xuất hiện trong công thức chu kỳ.","A không làm chu kỳ giảm.","Đúng: T chỉ phụ thuộc ω.","Không có quan hệ T ∝ A²."]},
+ {topic:1,level:2,q:"Vật có ω = 4 rad/s. Chu kỳ gần bằng?",o:["0,25 s","1,57 s","4 s","8 s"],a:1,h:"T = 2π/ω.",s:"T = 2π/4 ≈ 1,57 s.",wrong:["0,25 là 1/ω, thiếu hệ số 2π.","Đúng: 2π/4 ≈ 1,57 s.","Đây là giá trị ω, không phải T.","Không suy ra 8 s từ công thức."]},
+ {topic:2,level:1,q:"Chu kỳ con lắc lò xo lý tưởng phụ thuộc vào?",o:["Biên độ và pha","Khối lượng và độ cứng","Màu lò xo","Vị trí ban đầu"],a:1,h:"Dùng T = 2π√(m/k).",s:"Chu kỳ phụ thuộc m và k, không phụ thuộc biên độ trong mô hình lý tưởng.",wrong:["A và pha không nằm trong công thức T.","Đúng: T = 2π√(m/k).","Màu sắc không ảnh hưởng cơ học.","Vị trí ban đầu ảnh hưởng pha, không đổi T."]},
+ {topic:2,level:2,q:"Giữ m không đổi, tăng k lên 4 lần thì T…",o:["Tăng 4 lần","Tăng 2 lần","Giảm 2 lần","Không đổi"],a:2,h:"T tỉ lệ với 1/√k.",s:"T mới = T/√4 = T/2.",wrong:["k tăng làm T giảm, không tăng.","T không tỉ lệ thuận với √k.","Đúng: chu kỳ giảm còn một nửa.","k thay đổi nên T cũng thay đổi."]},
+ {topic:3,level:1,q:"Công thức gần đúng chu kỳ con lắc đơn góc nhỏ là?",o:["2π√(l/g)","2π√(g/l)","√(lg)","2πlg"],a:0,h:"T tăng khi l tăng.",s:"T ≈ 2π√(l/g), với góc lệch nhỏ.",wrong:["Đúng công thức gần đúng.","Tỉ số g/l cho xu hướng ngược.","Thiếu hệ số và sai thứ nguyên.","Sai dạng phụ thuộc l và g."]},
+ {topic:4,level:1,q:"Cộng hưởng rõ khi tần số cưỡng bức gần…",o:["0 Hz","Tần số riêng","Vô hạn","Bất kỳ tần số nào"],a:1,h:"Biên độ đáp ứng tăng mạnh quanh một tần số đặc trưng.",s:"Cộng hưởng xảy ra khi tần số kích thích gần tần số riêng của hệ.",wrong:["Không phải luôn ở 0 Hz.","Đúng: gần tần số riêng.","Tần số vô hạn không phải điều kiện cộng hưởng.","Đáp ứng phụ thuộc tần số kích thích và lực cản."]},
+ {topic:4,level:2,q:"Trong dao động điều hòa lý tưởng, cơ năng…",o:["Tăng đều","Giảm đều","Bảo toàn","Luôn bằng 0"],a:2,h:"Bỏ qua lực cản.",s:"Động năng và thế năng chuyển hóa qua lại, tổng cơ năng bảo toàn.",wrong:["Không có nguồn làm tăng cơ năng.","Không có lực cản nên cơ năng không giảm.","Đúng: cơ năng bảo toàn.","Cơ năng chỉ bằng 0 nếu hệ đứng yên tại cân bằng."]}
+];
+
+function fmt(x,n=2){
+  return Number(x).toLocaleString('vi-VN',{minimumFractionDigits:n,maximumFractionDigits:n});
+}
+function setTheme(theme){
+  document.documentElement.dataset.theme=theme;
+  $('themeBtn').textContent=theme==='dark'?'☀ Light mode':'🌙 Dark mode';
+}
+function omegaNow(){
+  if(tab===1)return +params.omega;
+  if(tab===2)return Math.sqrt(+params.stiff/(+params.mass/1000));
+  if(tab===3)return Math.sqrt(+params.gravity/+params.length);
+  return 2*Math.PI*(+params.drive);
+}
+function ampNow(){
+  return tab===2?+params.As:tab===3?+params.angle:tab===4?10:+params.A;
+}
+function phaseNow(){return tab===1?+params.phi:0}
+function values(time=t){
+  const w=omegaNow(),A0=ampNow(),phase=phaseNow();
+  if(tab===4){
+    const r=+params.drive,d=+params.damping;
+    const response=1/Math.sqrt((1-r*r)**2+(2*d*r)**2);
+    const A=6*Math.min(response,4);
+    const envelope=Math.exp(-d*time*.22);
+    return{x:A*Math.cos(w*time)*envelope,v:-A*w*Math.sin(w*time)*envelope,a:-A*w*w*Math.cos(w*time)*envelope,w,A};
+  }
+  const x=A0*Math.cos(w*time+phase);
+  return{x,v:-A0*w*Math.sin(w*time+phase),a:-w*w*x,w,A:A0};
+}
+function currentPeriod(){return 2*Math.PI/omegaNow()}
+
+/* Tính x, v, a cho bộ thông số dùng ở chế độ so sánh */
+function comparisonValues(time,overrides){
+  const A=overrides.A,omega=overrides.omega,phi=overrides.phi;
+  const angle=omega*time+phi;
+  const x=A*Math.cos(angle);
+  return{x,v:-omega*A*Math.sin(angle),a:-omega*omega*x};
+}
+function comparisonSet(which){
+  const parameter=$('compareParameter').value;
+  const value=Number($(which==='one'?'compareValue1':'compareValue2').value);
+  const set={A:+params.A,omega:+params.omega,phi:+params.phi};
+  if(Number.isFinite(value))set[parameter]=value;
+  return set;
+}
+function comparisonLabel(which){
+  const set=comparisonSet(which);
+  const name={A:'A',omega:'ω',phi:'φ'}[$('compareParameter').value];
+  return `Bộ ${which==='one'?'1':'2'}: ${name} = ${fmt(set[$('compareParameter').value],2)}`;
+}
+
+function saveState(){
+  try{
+    const state={
+      tab,t,playing,speed,graphMode,springVertical,teacherMode,
+      theme:document.documentElement.dataset.theme||'light',
+      compareEnabled,
+      compareQuantity:$('compareQuantity').value,
+      compareParameter:$('compareParameter').value,
+      compareValue1:$('compareValue1').value,
+      compareValue2:$('compareValue2').value,
+      params:Object.fromEntries(Object.keys(params).map(k=>[k,$(k).value])),
+      experimentData
+    };
+    localStorage.setItem(STORAGE_KEY,JSON.stringify(state));
+  }catch(e){console.warn('Không lưu được trạng thái:',e)}
+}
+function restoreState(){
+  try{
+    const state=JSON.parse(localStorage.getItem(STORAGE_KEY)||'null');
+    if(!state)return;
+    if(state.params)for(const [k,v] of Object.entries(state.params))if($(k))$(k).value=v;
+    if([1,2,3,4].includes(+state.tab))tab=+state.tab;
+    if(Number.isFinite(state.t))t=Math.max(0,state.t);
+    if(Number.isFinite(state.speed))speed=state.speed;
+    if(typeof state.playing==='boolean')playing=state.playing;
+    if(typeof state.graphMode==='string')graphMode=state.graphMode;
+    springVertical=!!state.springVertical;
+    teacherMode=!!state.teacherMode;
+    compareEnabled=!!state.compareEnabled;
+    if(['x','v','a'].includes(state.compareQuantity))$('compareQuantity').value=state.compareQuantity;
+    if(['A','omega','phi'].includes(state.compareParameter))$('compareParameter').value=state.compareParameter;
+    if(state.compareValue1!==undefined)$('compareValue1').value=state.compareValue1;
+    if(state.compareValue2!==undefined)$('compareValue2').value=state.compareValue2;
+    if(Array.isArray(state.experimentData))experimentData=state.experimentData;
+    setTheme(state.theme==='dark'?'dark':'light');
+  }catch(e){console.warn('Không khôi phục được trạng thái:',e)}
+}
+let saveTimer;
+function scheduleSave(){
+  clearTimeout(saveTimer);
+  saveTimer=setTimeout(saveState,250);
+}
+
+function updateUI(){
+  for(const k of Object.keys(params))params[k]=+$(k).value;
+  $('Aout').textContent=fmt(params.A,1)+' cm';
+  $('omegaout').textContent=fmt(params.omega,2)+' rad/s';
+  $('phiout').textContent=fmt(params.phi,2)+' rad';
+  $('massout').textContent=fmt(params.mass,0)+' g';
+  $('stiffout').textContent=fmt(params.stiff,0)+' N/m';
+  $('Asout').textContent=fmt(params.As,1)+' cm';
+  $('lengthout').textContent=fmt(params.length,2)+' m';
+  $('angleout').textContent=fmt(params.angle,0)+'°';
+  $('gravityout').textContent=fmt(params.gravity,1)+' m/s²';
+  $('dampingout').textContent=fmt(params.damping,2);
+  $('driveout').textContent=fmt(params.drive,1)+' Hz';
+
+  for(let i=1;i<=4;i++)$('controls'+i).classList.toggle('hidden',tab!==i);
+  $('simLabel').textContent=['','Dao động điều hòa','Con lắc lò xo','Con lắc đơn','Tắt dần & cộng hưởng'][tab];
+  $('resonanceBtn').classList.toggle('hidden',tab!==4);
+  $('comparePanel').classList.toggle('hidden',tab!==1);
+  $('compareControls').classList.toggle('hidden',!compareEnabled);
+
+  const w=omegaNow(),T=2*Math.PI/w,v=values();
+  $('Tval').textContent=fmt(T)+' s';
+  $('fval').textContent=fmt(1/T)+' Hz';
+  $('xval').textContent=fmt(v.x)+' cm';
+  $('vval').textContent=fmt(v.v)+' cm/s';
+  $('aval').textContent=fmt(v.a)+' cm/s²';
+  $('Wval').textContent=tab===2
+    ?fmt(.5*params.stiff*(params.As/100)**2,3)+' J'
+    :tab===4?'đáp ứng chuẩn hóa'
+    :fmt(.5*w*w*v.A*v.A,2)+' đv. chuẩn';
+
+  $('equation').textContent=tab===1?'x = A cos(ωt + φ)'
+    :tab===2?'T = 2π√(m/k) · W = ½kA²'
+    :tab===3?'T ≈ 2π√(l/g), góc nhỏ'
+    :'Biên độ cưỡng bức phụ thuộc tần số kích thích và lực cản';
+
+  $('guide').innerHTML=tab===1
+    ?'<div class="formula">x = A cos(ωt + φ)<br>v = −ωA sin(ωt + φ)<br>a = −ω²x<br>T = 2π/ω</div><p class="small">Tại biên: v = 0. Tại vị trí cân bằng: tốc độ cực đại.</p>'
+    :tab===2
+    ?'<div class="formula">T = 2π√(m/k)<br>ω = √(k/m)<br>W = ½kA²</div><p class="small">Đổi m sang kg, A sang mét khi tính năng lượng. Chu kỳ không phụ thuộc A trong mô hình lý tưởng.</p>'
+    :tab===3
+    ?'<div class="formula">T ≈ 2π√(l/g)</div><p class="small">Công thức gần đúng khi góc lệch nhỏ; chu kỳ lý tưởng không phụ thuộc khối lượng.</p>'
+    :'<div class="formula">Tắt dần: biên độ giảm do lực cản.<br>Cộng hưởng: đáp ứng lớn khi tần số kích thích gần tần số riêng.</div><p class="small">Đường cong cộng hưởng minh họa xu hướng của hệ dao động cưỡng bức.</p>';
+
+  document.querySelectorAll('[data-tab]').forEach(b=>b.classList.toggle('active',+b.dataset.tab===tab));
+  document.querySelectorAll('[data-graph]').forEach(b=>b.classList.toggle('active',b.dataset.graph===graphMode));
+  $('compareToggle').checked=compareEnabled;
+  $('teacherBtn').textContent=teacherMode?'👩‍🏫 Chế độ giáo viên: bật':'👩‍🏫 Chế độ giáo viên: tắt';
+  $('teacherBtn').classList.toggle('active',teacherMode);
+  applyTeacherMode();
+  updateTimerReadouts();
+  drawAll();
+}
+function setTab(n){
+  tab=n;t=0;
+  graphMode=tab===4?'resonance':'x';
+  updateUI();scheduleSave();
+}
+function applyTeacherMode(){
+  document.querySelectorAll('#controls1 input,#controls2 input,#controls3 input,#controls4 input').forEach(el=>{
+    el.disabled=teacherMode;
+    el.closest('.control')?.classList.toggle('teacher-locked',teacherMode);
+  });
+  document.querySelectorAll('[data-jump],#springH,#springV').forEach(el=>{
+    el.disabled=teacherMode;el.classList.toggle('teacher-locked',teacherMode);
+  });
+}
+function updatePlay(){$('playBtn').textContent=playing?'⏸ Tạm dừng':'▶ Tiếp tục'}
+function jump(kind){
+  const w=omegaNow(),phase=phaseNow();
+  let angle=kind==='center'?Math.PI/2:kind==='minusA'?Math.PI:kind==='half'?Math.acos(.5):kind==='energy'?Math.PI/4:0;
+  t=kind==='quarter'?currentPeriod()/4:((angle-phase)%(2*Math.PI)+2*Math.PI)%(2*Math.PI)/w;
+  playing=false;updatePlay();drawAll();scheduleSave();
+}
+
+/* Quiz */
+function buildQuiz(){
+  const topic=$('quizTopic').value,level=$('quizLevel').value;
+  quizPool=questions.filter(q=>(topic==='all'||q.topic===+topic)&&(level==='all'||q.level===+level));
+  if(!quizPool.length)quizPool=questions.slice();
+  quizIndex=0;quizScore=0;quizAttempts=0;loadQuestion();
+}
+function loadQuestion(){
+  currentQuestion=quizPool[quizIndex%quizPool.length];
+  picked=-1;answered=false;
+  $('question').textContent=currentQuestion.q;
+  $('questionCount').textContent=`Câu ${quizIndex%quizPool.length+1}/${quizPool.length}`;
+  $('levelTag').textContent=['','Cơ bản','Vận dụng','Nâng cao'][currentQuestion.level];
+  $('options').replaceChildren();
+  currentQuestion.o.forEach((text,i)=>{
+    const b=document.createElement('button');
+    b.className='option';b.textContent=String.fromCharCode(65+i)+'. '+text;
+    b.onclick=()=>{picked=i;document.querySelectorAll('.option').forEach((x,j)=>x.classList.toggle('selected',j===i))};
+    $('options').appendChild(b);
+  });
+  $('quizFeedback').className='feedback hidden';
+  $('hintBox').classList.add('hidden');$('solutionBox').classList.add('hidden');
+  $('progressBar').style.width=((quizIndex%quizPool.length+1)/quizPool.length*100)+'%';
+  $('score').textContent=`Điểm: ${quizScore}/${quizAttempts}`;
+}
+$('checkAnswer').onclick=()=>{
+  if(picked<0){$('quizFeedback').className='feedback wrong';$('quizFeedback').textContent='Hãy chọn một đáp án trước.';return}
+  if(answered)return;
+  answered=true;quizAttempts++;
+  const correct=picked===currentQuestion.a;
+  if(correct)quizScore++;
+  $('quizFeedback').className='feedback '+(correct?'correct':'wrong');
+  $('quizFeedback').textContent=correct
+    ?'Chính xác! '+currentQuestion.s
+    :`Chưa đúng. ${currentQuestion.wrong[picked]} Đáp án đúng: ${currentQuestion.o[currentQuestion.a]}.`;
+  $('score').textContent=`Điểm: ${quizScore}/${quizAttempts}`;
+};
+$('hintBtn').onclick=()=>{$('hintBox').textContent=currentQuestion.h;$('hintBox').classList.remove('hidden')};
+$('solutionBtn').onclick=()=>{$('solutionBox').textContent=currentQuestion.s;$('solutionBox').classList.remove('hidden')};
+$('nextQuestion').onclick=()=>{quizIndex++;loadQuestion()};
+$('quizTopic').onchange=buildQuiz;$('quizLevel').onchange=buildQuiz;
+
+/* Canvas helpers */
+function setupCanvas(canvas){
+  const r=canvas.getBoundingClientRect(),d=window.devicePixelRatio||1;
+  if(!r.width||!r.height)return null;
+  canvas.width=Math.round(r.width*d);canvas.height=Math.round(r.height*d);
+  const ctx=canvas.getContext('2d');ctx.setTransform(d,0,0,d,0,0);
+  return{ctx,w:r.width,h:r.height};
+}
+function drawSim(){
+  const o=setupCanvas($('simCanvas'));if(!o)return;
+  const{ctx,w,h}=o;ctx.clearRect(0,0,w,h);
+  const val=values(),ratio=val.x/Math.max(1,val.A);
+  const mid=w/2,span=Math.min(w*.34,145),px=mid+ratio*span;
+  ctx.font='12px system-ui';ctx.fillStyle='#69758c';
+  ctx.fillText('Minh họa chuyển động — không theo tỉ lệ',10,18);
+  ctx.strokeStyle='#b8c7dc';ctx.lineWidth=3;
+  ctx.beginPath();ctx.moveTo(28,h*.56);ctx.lineTo(w-28,h*.56);ctx.stroke();
+  ctx.setLineDash([4,5]);ctx.strokeStyle='#9aa7bc';
+  ctx.beginPath();ctx.moveTo(mid,h*.29);ctx.lineTo(mid,h*.73);ctx.stroke();ctx.setLineDash([]);
+  ctx.font='bold 11px system-ui';ctx.fillStyle='#6d5bd0';ctx.textAlign='center';
+  ctx.fillText('Biên âm (−A)',Math.max(55,mid-span),h*.82);
+  ctx.fillText('Vị trí cân bằng',mid,h*.82);
+  ctx.fillText('Biên dương (+A)',Math.min(w-60,mid+span),h*.82);
+
+  if(tab===3){
+    const pivotX=mid,pivotY=h*.19,L=Math.min(h*.45,135);
+    const theta=ratio*params.angle*Math.PI/180;
+    const bx=pivotX+L*Math.sin(theta),by=pivotY+L*Math.cos(theta);
+    ctx.strokeStyle='#64748b';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(pivotX,pivotY);ctx.lineTo(bx,by);ctx.stroke();
+    ctx.fillStyle='#475569';ctx.beginPath();ctx.arc(pivotX,pivotY,5,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle='#0ea5e9';ctx.beginPath();ctx.arc(bx,by,16,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle='#fff';ctx.textAlign='center';ctx.fillText('m',bx,by+4);
+    ctx.fillStyle='#59647c';ctx.fillText('Điểm treo',pivotX,pivotY-9);
+  }else if(tab===2&&springVertical){
+    const anchor=mid,y0=h*.23,ballY=h*.53+ratio*Math.min(h*.18,55);
+    ctx.strokeStyle='#64748b';ctx.lineWidth=4;ctx.beginPath();ctx.moveTo(mid-42,y0);ctx.lineTo(mid+42,y0);ctx.stroke();
+    ctx.strokeStyle='#8898b0';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(anchor,y0);
+    const end=ballY-16;
+    for(let i=0;i<=16;i++){const yy=y0+(end-y0)*i/16;ctx.lineTo(anchor+(i===16?0:(i%2?11:-11)),yy)}
+    ctx.stroke();ctx.fillStyle='#ec4899';ctx.beginPath();ctx.arc(anchor,ballY,17,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle='#fff';ctx.textAlign='center';ctx.fillText('m',anchor,ballY+4);
+  }else if(tab===2){
+    const y=h*.56;
+    ctx.strokeStyle='#64748b';ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(20,y-28);ctx.lineTo(20,y+28);ctx.stroke();
+    ctx.strokeStyle='#8898b0';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(20,y);
+    for(let i=1;i<=24;i++)ctx.lineTo(20+(px-38)*i/24,y+(i===24?0:(i%2?9:-9)));
+    ctx.stroke();ctx.fillStyle='#ec4899';ctx.beginPath();ctx.arc(px,y,17,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle='#fff';ctx.textAlign='center';ctx.fillText('m',px,y+4);
+  }else{
+    ctx.fillStyle='#4778e8';ctx.beginPath();ctx.arc(px,h*.56,18,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle='#fff';ctx.textAlign='center';ctx.fillText('m',px,h*.56+4);
+  }
+  ctx.textAlign='left';ctx.fillStyle='#26324b';
+  ctx.fillText(`t = ${fmt(t)} s`,10,42);
+  ctx.fillStyle='#16836e';ctx.fillText(`v = ${fmt(val.v)} cm/s`,10,60);
+  ctx.fillStyle='#b47523';ctx.fillText(`a = ${fmt(val.a)} cm/s²`,10,78);
+  $('simStatus').textContent=`${playing?'Đang chạy':'Đã tạm dừng'} · t = ${fmt(t)} s · x = ${fmt(val.x)} cm · v = ${fmt(val.v)} cm/s`;
+}
+
+function drawGraph(){
+  const o=setupCanvas($('graphCanvas'));if(!o)return;
+  const{ctx,w,h}=o;ctx.clearRect(0,0,w,h);
+  const dark=document.documentElement.dataset.theme==='dark';
+  const grid=dark?'#3a3d52':'#e6e9f3',text=dark?'#b8bfd4':'#59647c';
+  const pad={left:61,right:17,top:28,bottom:39},pw=w-pad.left-pad.right,ph=h-pad.top-pad.bottom;
+  if(pw<=0||ph<=0)return;
+
+  if(tab===4&&graphMode==='resonance'){
+    drawResonance(ctx,w,h,pad,pw,ph,grid,text);updateGraphReadouts();return;
+  }
+
+  const period=currentPeriod(),cycles=+$('graphWindow').value||2;
+  const duration=period*cycles,start=Math.max(0,t-duration),end=start+duration;
+  const count=Math.max(240,Math.floor(pw*1.3));
+  const data=Array.from({length:count+1},(_,i)=>{
+    const time=start+duration*i/count;
+    return{time,...values(time)};
+  });
+  const xp=time=>pad.left+(time-start)/duration*pw;
+  let min,max,title;
+
+  if(graphMode==='energy'){min=0;max=1.15;title='Năng lượng chuẩn hóa'}
+  else if(graphMode==='phase'){min=-Math.max(1,omegaNow()*ampNow())*1.25;max=-min;title='Pha: x (ngang), v (dọc)'}
+  else{
+    const key=graphMode;
+    const magnitude=Math.max(1,...data.map(p=>Math.abs(p[key])))*1.15;
+    min=-magnitude;max=magnitude;
+    title=graphMode==='x'?'Li độ x (cm)':graphMode==='v'?'Vận tốc v (cm/s)':'Gia tốc a (cm/s²)';
+  }
+  const yp=value=>pad.top+(max-value)/(max-min)*ph;
+
+  ctx.fillStyle=dark?'#24283a':'#fff';ctx.fillRect(pad.left,pad.top,pw,ph);
+  ctx.font='11px system-ui';ctx.strokeStyle=grid;ctx.fillStyle=text;
+  ctx.textAlign='right';ctx.textBaseline='middle';
+
+  for(let i=0;i<=5;i++){
+    const value=max-(max-min)*i/5,y=pad.top+ph*i/5;
+    ctx.beginPath();ctx.moveTo(pad.left,y);ctx.lineTo(pad.left+pw,y);ctx.stroke();
+    ctx.fillText(graphMode==='energy'?value.toFixed(1):Number(value).toPrecision(3),pad.left-7,y);
+  }
+  ctx.textAlign='center';ctx.textBaseline='top';
+  for(let i=0;i<=6;i++){
+    const x=pad.left+pw*i/6,time=start+duration*i/6;
+    ctx.beginPath();ctx.moveTo(x,pad.top);ctx.lineTo(x,pad.top+ph);ctx.stroke();
+    ctx.fillText(fmt(time,1),x,pad.top+ph+7);
+  }
+  if(graphMode!=='energy'){
+    ctx.strokeStyle=text;ctx.beginPath();ctx.moveTo(pad.left,yp(0));ctx.lineTo(pad.left+pw,yp(0));ctx.stroke();
+  }
+
+  function drawCurve(getter,color,width=2.5,dashed=false){
+    ctx.save();ctx.beginPath();ctx.rect(pad.left,pad.top,pw,ph);ctx.clip();
+    ctx.beginPath();
+    data.forEach((p,i)=>{const x=xp(p.time),y=yp(getter(p));if(i)ctx.lineTo(x,y);else ctx.moveTo(x,y)});
+    ctx.strokeStyle=color;ctx.lineWidth=width;ctx.lineJoin='round';
+    ctx.setLineDash(dashed?[6,4]:[]);ctx.stroke();ctx.restore();
+  }
+
+  if(graphMode==='x')drawCurve(p=>p.x,'#716cf0');
+  else if(graphMode==='v')drawCurve(p=>p.v,'#20a88a');
+  else if(graphMode==='a')drawCurve(p=>p.a,'#e49a42');
+  else if(graphMode==='energy'){
+    drawCurve(p=>(p.x/Math.max(1,p.A))**2,'#9284ed');
+    drawCurve(p=>1-(p.x/Math.max(1,p.A))**2,'#20a88a');
+    drawCurve(()=>1,'#e4a34d',1.8);
+  }else{
+    const maxX=Math.max(1,ampNow())*1.2,maxV=Math.max(1,omegaNow()*ampNow())*1.2;
+    ctx.save();ctx.beginPath();ctx.rect(pad.left,pad.top,pw,ph);ctx.clip();
+    ctx.beginPath();
+    data.forEach((p,i)=>{
+      const x=pad.left+(p.x+maxX)/(2*maxX)*pw,y=pad.top+(maxV-p.v)/(2*maxV)*ph;
+      if(i)ctx.lineTo(x,y);else ctx.moveTo(x,y);
+    });
+    ctx.strokeStyle='#716cf0';ctx.lineWidth=2.5;ctx.stroke();ctx.restore();
+  }
+
+  /* So sánh: vẽ hai bộ trên cùng đồ thị của đại lượng đã chọn. */
+  const compareQuantity=$('compareQuantity').value;
+  const comparisonActive=compareEnabled&&tab===1&&graphMode===compareQuantity;
+  if(comparisonActive){
+    const first=comparisonSet('one'),second=comparisonSet('two');
+    drawCurve(p=>comparisonValues(p.time,first)[compareQuantity],'#716cf0',2.5);
+    drawCurve(p=>comparisonValues(p.time,second)[compareQuantity],'#ed7193',2.5,true);
+  }
+
+  const now=values(),cursorTime=Math.min(Math.max(t,start),end),cursorX=xp(cursorTime);
+  ctx.save();ctx.beginPath();ctx.rect(pad.left,pad.top,pw,ph);ctx.clip();
+  ctx.strokeStyle='#ed7193';ctx.lineWidth=1.5;ctx.setLineDash([5,4]);
+  ctx.beginPath();ctx.moveTo(cursorX,pad.top);ctx.lineTo(cursorX,pad.top+ph);ctx.stroke();ctx.setLineDash([]);
+
+  if(graphMode==='phase'){
+    const maxX=Math.max(1,ampNow())*1.2,maxV=Math.max(1,omegaNow()*ampNow())*1.2;
+    const px=pad.left+(now.x+maxX)/(2*maxX)*pw,py=pad.top+(maxV-now.v)/(2*maxV)*ph;
+    ctx.fillStyle='#ed7193';ctx.beginPath();ctx.arc(px,py,5,0,Math.PI*2);ctx.fill();
+  }else{
+    const value=graphMode==='x'?now.x:graphMode==='v'?now.v:graphMode==='a'?now.a:(now.x/Math.max(1,now.A))**2;
+    ctx.fillStyle='#ed7193';ctx.beginPath();ctx.arc(cursorX,yp(value),5,0,Math.PI*2);ctx.fill();
+  }
+  ctx.restore();
+
+  if(graphMode==='x'&&drawing.length){
+    ctx.save();ctx.beginPath();ctx.rect(pad.left,pad.top,pw,ph);ctx.clip();
+    ctx.beginPath();
+    drawing.forEach((p,i)=>{
+      const x=pad.left+p.tx*pw,y=pad.top+(1-p.ny)*ph;
+      if(i)ctx.lineTo(x,y);else ctx.moveTo(x,y);
+    });
+    ctx.strokeStyle='#ff8a45';ctx.lineWidth=2.4;ctx.lineCap='round';ctx.stroke();ctx.restore();
+  }
+
+  ctx.fillStyle=text;ctx.font='12px system-ui';ctx.textAlign='left';ctx.textBaseline='top';
+  ctx.fillText(title,6,6);ctx.textAlign='right';ctx.fillText('Thời gian (s)',w-5,h-17);
+
+  if(graphMode==='energy'){
+    $('legend').innerHTML='<span><i style="background:#9284ed"></i>Thế năng</span><span><i style="background:#20a88a"></i>Động năng</span><span><i style="background:#e4a34d"></i>Cơ năng</span>';
+  }else if(graphMode==='phase'){
+    $('legend').innerHTML='<span><i style="background:#716cf0"></i>Quỹ đạo pha x–v</span>';
+  }else if(comparisonActive){
+    $('legend').innerHTML=
+      `<div class="compare-legend">
+        <span><i style="background:#716cf0"></i>${comparisonLabel('one')}</span>
+        <span><i style="background:#ed7193"></i>${comparisonLabel('two')} (nét đứt)</span>
+      </div>`;
+  }else{
+    $('legend').innerHTML='<span><i style="background:#716cf0"></i>'+title+'</span><span class="small">Vạch hồng: thời điểm hiện tại</span>';
+  }
+
+  updateGraphReadouts();
+}
+function drawResonance(ctx,w,h,pad,pw,ph,grid,text){
+  const maxF=3,f0=1,d=+params.damping;
+  const response=f=>{
+    const r=f/f0;
+    return 1/Math.sqrt((1-r*r)**2+(2*d*r)**2);
+  };
+  const peak=Math.max(1,response(f0));
+  const xp=f=>pad.left+f/maxF*pw;
+  const yp=a=>pad.top+ph-(a/peak)*ph*.88;
+  ctx.fillStyle=document.documentElement.dataset.theme==='dark'?'#24283a':'#fff';
+  ctx.fillRect(pad.left,pad.top,pw,ph);
+  ctx.strokeStyle=grid;ctx.fillStyle=text;ctx.font='11px system-ui';
+
+  for(let i=0;i<=4;i++){
+    const y=pad.top+ph*i/4;
+    ctx.beginPath();ctx.moveTo(pad.left,y);ctx.lineTo(pad.left+pw,y);ctx.stroke();
+  }
+  for(let i=0;i<=6;i++){
+    const f=maxF*i/6,x=xp(f);
+    ctx.beginPath();ctx.moveTo(x,pad.top);ctx.lineTo(x,pad.top+ph);ctx.stroke();
+    ctx.textAlign='center';ctx.fillText(f.toFixed(1),x,pad.top+ph+7);
+  }
+  ctx.save();ctx.beginPath();ctx.rect(pad.left,pad.top,pw,ph);ctx.clip();
+  ctx.beginPath();
+  for(let i=0;i<=300;i++){
+    const f=maxF*i/300;
+    if(i)ctx.lineTo(xp(f),yp(response(f)));else ctx.moveTo(xp(f),yp(response(f)));
+  }
+  ctx.strokeStyle='#8277e8';ctx.lineWidth=2.7;ctx.stroke();
+  const selected=+params.drive;
+  ctx.strokeStyle='#ed7193';ctx.lineWidth=1.7;ctx.setLineDash([5,4]);
+  ctx.beginPath();ctx.moveTo(xp(selected),pad.top);ctx.lineTo(xp(selected),pad.top+ph);ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.fillStyle='#ed7193';ctx.beginPath();ctx.arc(xp(selected),yp(response(selected)),5,0,Math.PI*2);ctx.fill();
+  ctx.restore();
+  ctx.fillStyle=text;ctx.font='12px system-ui';ctx.textAlign='left';ctx.textBaseline='top';
+  ctx.fillText('Biên độ đáp ứng (chuẩn hóa)',6,6);
+  ctx.textAlign='right';ctx.fillText('Tần số kích thích (Hz)',w-5,h-17);
+  $('legend').innerHTML='<span><i style="background:#8277e8"></i>Đường cong cộng hưởng</span><span><i style="background:#ed7193"></i>Tần số đang chọn: '+fmt(selected,1)+' Hz</span>';
+}
+function updateGraphReadouts(){
+  const v=values();
+  $('graphTime').textContent=fmt(t)+' s';
+  $('graphX').textContent=fmt(v.x)+' cm';
+  $('graphV').textContent=fmt(v.v)+' cm/s';
+  $('graphA').textContent=fmt(v.a)+' cm/s²';
+}
+function drawAll(){
+  drawSim();drawGraph();
+  const v=values(),wt=(v.x/Math.max(1,v.A))**2;
+  $('toolPosition').textContent='x = '+fmt(v.x)+' cm';
+  $('toolKinetic').textContent='Wđ = '+fmt(1-wt,3);
+  $('toolPotential').textContent='Wt = '+fmt(wt,3);
+}
+
+/* Vẽ tay trên đồ thị li độ */
+function graphCoordinates(event){
+  const rect=$('graphCanvas').getBoundingClientRect();
+  const pad={left:61,right:17,top:28,bottom:39};
+  const pw=rect.width-pad.left-pad.right,ph=rect.height-pad.top-pad.bottom;
+  const x=event.clientX-rect.left,y=event.clientY-rect.top;
+  if(x<pad.left||x>rect.width-pad.right||y<pad.top||y>rect.height-pad.bottom)return null;
+  return{tx:(x-pad.left)/pw,ny:1-(y-pad.top)/ph};
+}
+$('drawToggle').onclick=()=>{
+  drawingEnabled=!drawingEnabled;
+  $('drawToggle').textContent=drawingEnabled?'Đang vẽ — bấm để kết thúc':'Bắt đầu vẽ';
+  $('drawStatus').textContent=drawingEnabled?'Kéo chuột/ngón tay trên đồ thị x(t).':'Đã kết thúc vẽ; nét màu cam so với lý thuyết.';
+  $('graphCanvas').style.cursor=drawingEnabled?'crosshair':'default';
+};
+$('clearDrawing').onclick=()=>{drawing=[];drawGraph();$('drawStatus').textContent='Nét vẽ đã xóa.'};
+$('graphCanvas').addEventListener('pointerdown',e=>{
+  if(!drawingEnabled||graphMode!=='x')return;
+  const p=graphCoordinates(e);if(!p)return;
+  isDrawing=true;drawing=[p];$('graphCanvas').setPointerCapture(e.pointerId);drawGraph();
+});
+$('graphCanvas').addEventListener('pointermove',e=>{
+  if(!isDrawing)return;
+  const p=graphCoordinates(e);if(!p)return;
+  drawing.push(p);drawGraph();
+});
+function stopDrawing(){if(isDrawing){isDrawing=false;$('drawStatus').textContent='Nét màu cam là đường vẽ tay; đường tím là lý thuyết.'}}
+$('graphCanvas').addEventListener('pointerup',stopDrawing);
+$('graphCanvas').addEventListener('pointercancel',stopDrawing);
+
+/* Dữ liệu, CSV, ảnh và báo cáo Word */
+function renderData(){
+  $('dataRows').innerHTML=experimentData.length
+    ?experimentData.map((r,i)=>`<tr><td>${i+1}</td><td>${fmt(r.t)}</td><td>${fmt(r.x)}</td><td>${fmt(r.v)}</td><td>${fmt(r.a)}</td><td>${fmt(r.wt,3)}</td><td>${fmt(r.wd,3)}</td></tr>`).join('')
+    :'<tr><td colspan="7" style="text-align:center">Chưa có dữ liệu. Nhấn “Ghi số liệu”.</td></tr>';
+}
+$('recordBtn').onclick=()=>{
+  const v=values(),wt=(v.x/Math.max(1,v.A))**2;
+  experimentData.push({t,x:v.x,v:v.v,a:v.a,wt,wd:1-wt,tab});
+  renderData();$('recordStatus').innerHTML='<span class="status-dot"></span>Đã lưu '+experimentData.length+' lần đo';
+  scheduleSave();
+};
+$('clearDataBtn').onclick=()=>{
+  experimentData=[];renderData();$('recordStatus').textContent='Đã xóa bảng số liệu';scheduleSave();
+};
+function downloadBlob(blob,name){
+  const url=URL.createObjectURL(blob),a=document.createElement('a');
+  a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);
+}
+$('exportCsvBtn').onclick=()=>{
+  if(!experimentData.length){$('recordStatus').textContent='Chưa có số liệu để xuất.';return}
+  const rows=[['Lan do','t (s)','x (cm)','v (cm/s)','a (cm/s2)','Wt/W','Wd/W'],
+    ...experimentData.map((r,i)=>[i+1,r.t,r.x,r.v,r.a,r.wt,r.wd])];
+  downloadBlob(new Blob(['\ufeff'+rows.map(r=>r.join(',')).join('\r\n')],{type:'text/csv;charset=utf-8'}),'bao_cao_vat_li_11.csv');
+};
+$('saveGraphBtn').onclick=()=>{
+  drawGraph();
+  $('graphCanvas').toBlob(blob=>{if(blob)downloadBlob(blob,'do_thi_vat_li_11.png')});
+};
+$('printBtn').onclick=()=>window.print();
+$('exportWordBtn').onclick=()=>{
+  const graph=$('graphCanvas').toDataURL('image/png');
+  const rows=experimentData.map((r,i)=>`<tr><td>${i+1}</td><td>${fmt(r.t)}</td><td>${fmt(r.x)}</td><td>${fmt(r.v)}</td><td>${fmt(r.a)}</td><td>${fmt(r.wt,3)}</td><td>${fmt(r.wd,3)}</td></tr>`).join('');
+  const html=`<!DOCTYPE html><html><head><meta charset="utf-8"><title>Báo cáo thí nghiệm</title>
+  <style>body{font-family:Arial,sans-serif;margin:35px;color:#222}h1,h2{text-align:center}table{border-collapse:collapse;width:100%}th,td{border:1px solid #777;padding:6px;text-align:center}img{max-width:100%;margin-top:15px}</style></head><body>
+  <h1>BÁO CÁO THÍ NGHIỆM VẬT LÍ 11</h1>
+  <p>Chủ đề: ${$('simLabel').textContent}</p><p>Chu kỳ lý thuyết: ${fmt(currentPeriod())} s</p>
+  <h2>Bảng số liệu</h2><table><thead><tr><th>#</th><th>t (s)</th><th>x (cm)</th><th>v (cm/s)</th><th>a (cm/s²)</th><th>Wt/W</th><th>Wđ/W</th></tr></thead><tbody>${rows||'<tr><td colspan="7">Chưa ghi số liệu</td></tr>'}</tbody></table>
+  <h2>Đồ thị</h2><img src="${graph}" alt="Đồ thị thí nghiệm">
+  <p>Ghi chú: kết quả dựa trên mô hình mô phỏng giáo dục.</p></body></html>`;
+  downloadBlob(new Blob(['\ufeff',html],{type:'application/msword'}),'bao_cao_thi_nghiem_vat_li_11.doc');
+};
+
+/* Đồng hồ đo chu kỳ */
+function updateTimerReadouts(){
+  const elapsed=timerRunning?(performance.now()-timerStartedAt)/1000+timerElapsed:timerElapsed;
+  $('stopwatch').textContent=fmt(elapsed)+' s';
+  $('theoryPeriod').textContent=fmt(currentPeriod())+' s';
+  const n=Math.max(1,+$('cyclesMeasured').value||1);
+  if(!timerRunning&&timerElapsed>0)$('measuredPeriod').textContent=fmt(timerElapsed/n)+' s';
+}
+$('timerStart').onclick=()=>{
+  if(timerRunning)return;
+  timerStartedAt=performance.now();timerRunning=true;
+  $('timerStatus').textContent='Đồng hồ đang chạy. Bấm dừng sau số chu kỳ đã chọn.';
+};
+$('timerStop').onclick=()=>{
+  if(!timerRunning){$('timerStatus').textContent='Đồng hồ chưa chạy.';return}
+  timerElapsed+=(performance.now()-timerStartedAt)/1000;
+  timerRunning=false;
+  const n=Math.max(1,+$('cyclesMeasured').value||1),measured=timerElapsed/n;
+  $('measuredPeriod').textContent=fmt(measured)+' s';
+  $('timerStatus').textContent=`Đã đo ${n} chu kỳ trong ${fmt(timerElapsed)} s; T̄ = ${fmt(measured)} s.`;
+  experimentData.push({t:timerElapsed,x:0,v:0,a:0,wt:0,wd:1,tab,measurement:'stopwatch'});
+  renderData();scheduleSave();
+};
+$('timerReset').onclick=()=>{
+  timerRunning=false;timerElapsed=0;
+  $('stopwatch').textContent='0,00 s';$('measuredPeriod').textContent='—';
+  $('timerStatus').textContent='Đã xóa đồng hồ.';
+};
+$('cyclesMeasured').oninput=updateTimerReadouts;
+
+/* Các sự kiện giao diện */
+document.querySelectorAll('[data-tab]').forEach(b=>b.onclick=()=>setTab(+b.dataset.tab));
+document.querySelectorAll('[data-jump]').forEach(b=>b.onclick=()=>jump(b.dataset.jump));
+document.querySelectorAll('[data-graph]').forEach(b=>b.onclick=()=>{
+  graphMode=b.dataset.graph;
+  document.querySelectorAll('[data-graph]').forEach(x=>x.classList.toggle('active',x===b));
+  drawGraph();scheduleSave();
+});
+for(const id of Object.keys(params)){
+  $(id).addEventListener('input',()=>{
+    if(['omega','phi','A','mass','stiff','As','length','gravity'].includes(id))t=0;
+    updateUI();scheduleSave();
+  });
+}
+$('playBtn').onclick=()=>{playing=!playing;updatePlay();scheduleSave()};
+$('restartBtn').onclick=()=>{t=0;drawAll();scheduleSave()};
+$('stepBtn').onclick=()=>{t+=.1;playing=false;updatePlay();drawAll();scheduleSave()};
+$('speed').onchange=()=>{speed=+$('speed').value;scheduleSave()};
+$('springH').onclick=()=>{springVertical=false;$('springH').classList.add('active');$('springV').classList.remove('active');drawAll();scheduleSave()};
+$('springV').onclick=()=>{springVertical=true;$('springV').classList.add('active');$('springH').classList.remove('active');drawAll();scheduleSave()};
+
+/* Sự kiện chế độ so sánh */
+$('compareToggle').onchange=()=>{
+  compareEnabled=$('compareToggle').checked;
+  $('compareControls').classList.toggle('hidden',!compareEnabled);
+  drawGraph();scheduleSave();
+};
+['compareQuantity','compareParameter'].forEach(id=>{
+  $(id).addEventListener('change',()=>{drawGraph();scheduleSave()});
+});
+['compareValue1','compareValue2'].forEach(id=>{
+  $(id).addEventListener('input',()=>{drawGraph();scheduleSave()});
+});
+
+$('graphWindow').onchange=drawGraph;
+$('themeBtn').onclick=()=>{
+  const next=document.documentElement.dataset.theme==='dark'?'light':'dark';
+  setTheme(next);drawAll();scheduleSave();
+};
+$('teacherBtn').onclick=()=>{
+  teacherMode=!teacherMode;applyTeacherMode();
+  $('teacherBtn').textContent=teacherMode?'👩‍🏫 Chế độ giáo viên: bật':'👩‍🏫 Chế độ giáo viên: tắt';
+  $('teacherBtn').classList.toggle('active',teacherMode);scheduleSave();
+};
+$('resetBtn').onclick=()=>{
+  for(const [k,v] of Object.entries(defaults))$(k).value=v;
+  tab=1;t=0;playing=true;speed=1;graphMode='x';springVertical=false;
+  compareEnabled=false;teacherMode=false;experimentData=[];drawing=[];
+  $('speed').value='1';
+  $('compareToggle').checked=false;
+  $('compareQuantity').value='x';
+  $('compareParameter').value='A';
+  $('compareValue1').value='10';
+  $('compareValue2').value='15';
+  $('compareControls').classList.add('hidden');
+  $('springH').classList.add('active');$('springV').classList.remove('active');
+  setTheme('light');updatePlay();renderData();updateUI();scheduleSave();
+};
+window.addEventListener('beforeunload',saveState);
+window.addEventListener('resize',drawAll);
+
+function loop(now){
+  const dt=Math.min(.05,(now-lastFrame)/1000);lastFrame=now;
+  if(playing)t+=dt*speed;
+  if(timerRunning)updateTimerReadouts();
+  drawAll();
+  requestAnimationFrame(loop);
+}
+
+/* Khởi động */
+restoreState();
+$('speed').value=String(speed);
+$('compareToggle').checked=compareEnabled;
+$('compareControls').classList.toggle('hidden',!compareEnabled);
+$('springH').classList.toggle('active',!springVertical);
+$('springV').classList.toggle('active',springVertical);
+updatePlay();
+renderData();
+buildQuiz();
+updateUI();
+requestAnimationFrame(loop);
+</script>
+</body>
+</html>
